@@ -9,7 +9,10 @@ module.exports.findCards = (req, res) => {
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-  Card.create({ name, link, owner })
+  if (!name || !link) {
+    return res.status(400).send({ message: 'Поля должны быть заполнены' });
+  }
+  return Card.create({ name, link, owner })
     .then((card) => {
       if (!card) {
         res.status(400).send({ message: 'Переданы некорректные данные' });
