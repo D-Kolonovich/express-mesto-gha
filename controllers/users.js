@@ -8,7 +8,7 @@ module.exports.findUsers = (req, res) => {
 };
 
 module.exports.findUserById = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
@@ -27,8 +27,10 @@ module.exports.findUserById = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
+  if (!name || !about || !avatar) {
+    return res.status(400).send({ message: 'Поля должны быть заполнены' });
+  }
+  return User.create({ name, about, avatar })
     .then((user) => {
       res.send({ data: user });
     })
