@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const validator = require('validator');
 
-const { errors } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const errorHandler = require('./errors/errorHandler');
 
 const app = express();
@@ -25,8 +26,26 @@ app.use(express.json());
 
 //   next();
 // });
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле "link" должно быть валидным url-адресом');
+    }),
+  }),
+}), createUser);
 
 app.use(auth);
 
