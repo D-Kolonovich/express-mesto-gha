@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const validator = require('validator');
 
 const { errors, celebrate, Joi } = require('celebrate');
 const errorHandler = require('./errors/errorHandler');
@@ -38,12 +37,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().required().custom((value, helpers) => {
-      if (validator.isURL(value)) {
-        return value;
-      }
-      return helpers.message('Поле "link" должно быть валидным url-адресом');
-    }),
+    avatar: Joi.string().required().regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
   }),
 }), createUser);
 

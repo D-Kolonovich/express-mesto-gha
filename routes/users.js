@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const validator = require('validator');
 
 const { celebrate, Joi } = require('celebrate');
 const {
@@ -27,12 +26,7 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom((value, helpers) => {
-      if (validator.isURL(value)) {
-        return value;
-      }
-      return helpers.message('Поле "link" должно быть валидным url-адресом');
-    }),
+    avatar: Joi.string().required().regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
   }),
 }), patchUserAvatar);
 
