@@ -8,6 +8,7 @@ const {
   likeCard,
   dislikeCard,
 } = require('../controllers/cards');
+const { validateObjId } = require('../middlewares/validatons');
 
 router.get('/cards', findCards);
 
@@ -18,22 +19,10 @@ router.post('/cards', celebrate({
   }),
 }), createCard);
 
-router.delete('/cards/:cardId', celebrate({
-  body: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
-  }),
-}), deleteCardById);
+router.delete('/cards/:cardId', validateObjId, deleteCardById);
 
-router.put('/cards/:cardId/likes', celebrate({
-  body: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
-  }),
-}), likeCard);
+router.put('/cards/:cardId/likes', validateObjId, likeCard);
 
-router.delete('/cards/:cardId/likes', celebrate({
-  body: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
-  }),
-}), dislikeCard);
+router.delete('/cards/:cardId/likes', validateObjId, dislikeCard);
 
 module.exports = router;
