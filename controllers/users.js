@@ -33,12 +33,12 @@ module.exports.findUserById = (req, res, next) => {
 
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
-  User.find({ _id })
+  User.findById(_id)
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Пользователь не найден'));
       }
-      return res.send(user);
+      return res.send({ data: user });
     })
     .catch(next);
 };
@@ -150,7 +150,7 @@ module.exports.patchUserAvatar = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       // создадим токен
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
