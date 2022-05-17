@@ -17,7 +17,7 @@ module.exports.findUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError({ message: 'Пользователь с указанным _id не найден' }); // res.status(404).send
+        throw new NotFoundError('Пользователь с указанным _id не найден'); // res.status(404).send
       } else {
         res.send({ data: user });
       }
@@ -61,18 +61,6 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => User.findOne({ _id: user._id }))
     .then((user) => {
       res.send({ data: user });
-      // .then((user) => {
-      //   const { _id } = user;
-      //   res.send({
-      //     data: {
-      //       _id,
-      //       name,
-      //       about,
-      //       avatar,
-      //       email,
-      //     },
-      //   });
-      // })
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -88,7 +76,7 @@ module.exports.createUser = (req, res, next) => {
 module.exports.patchUser = (req, res, next) => {
   const { name, about } = req.body;
   if (!name || !about) {
-    return new ValidationError({ message: 'Поля должны быть заполнены' }); // res.status(400).send
+    return next(new ValidationError('Поле должно быть заполнено')); // res.status(400).send
   }
   return User.findByIdAndUpdate(
     req.user._id,
@@ -119,7 +107,7 @@ module.exports.patchUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   if (!avatar) {
-    return new ValidationError({ message: 'Поле должно быть заполнено' }); // res.status(400).send
+    return next(new ValidationError('Поле должно быть заполнено')); // res.status(400).send
   }
 
   return User.findByIdAndUpdate(
