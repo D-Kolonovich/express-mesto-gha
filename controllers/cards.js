@@ -39,9 +39,9 @@ module.exports.deleteCardById = (req, res, next) => {
         Promise.reject(new ForbiddenError('Попытка удалить другого пользователя'));
       } else {
         card.remove();
-        res.send({ data: card });
       }
     })
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidationError('Переданы некорректные данные при удалении')); // res.status(400).send
