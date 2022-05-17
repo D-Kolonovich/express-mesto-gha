@@ -2,11 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const { errors, celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const errorHandler = require('./errors/errorHandler');
 
 const app = express();
 
 const { PORT = 3000 } = process.env;
+
+const UnauthorizedError = require('./errors/UnauthorizedError');
+
+const validateURL = (value) => {
+  if (!validator.isURL(value, { require_protocol: true })) {
+    throw new UnauthorizedError('Неправильный формат ссылки');
+  }
+  return value;
+};
 
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
@@ -32,7 +42,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
+    avatar: Joi.string().custom(validateURL),
   }),
 }), createUser);
 

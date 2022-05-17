@@ -88,7 +88,7 @@ module.exports.createUser = (req, res, next) => {
 module.exports.patchUser = (req, res, next) => {
   const { name, about } = req.body;
   if (!name || !about) {
-    return res.status(400).send({ message: 'Поля должны быть заполнены' });
+    return new ValidationError({ message: 'Поля должны быть заполнены' }); // res.status(400).send
   }
   return User.findByIdAndUpdate(
     req.user._id,
@@ -119,7 +119,7 @@ module.exports.patchUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   if (!avatar) {
-    return res.status(400).send({ message: 'Поле должно быть заполнено' });
+    return new ValidationError({ message: 'Поле должно быть заполнено' }); // res.status(400).send
   }
 
   return User.findByIdAndUpdate(

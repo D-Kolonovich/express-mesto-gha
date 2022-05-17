@@ -31,13 +31,14 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.deleteCardById = (req, res, next) => {
   const anotherUser = req.user._id;
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с указанным _id не найдена'); // res.status(404).send
       } else if (anotherUser !== String(card.owner)) {
-        throw new ForbiddenError('Попытка удалить другого пользователя');
+        Promise.reject(new ForbiddenError('Попытка удалить другого пользователя'));
       } else {
+        card.remove();
         res.send({ data: card });
       }
     })

@@ -1,6 +1,18 @@
 const router = require('express').Router();
 
 const { celebrate, Joi } = require('celebrate');
+
+const validator = require('validator');
+
+const UnauthorizedError = require('../errors/UnauthorizedError');
+
+const validateURL = (value) => {
+  if (!validator.isURL(value, { require_protocol: true })) {
+    throw new UnauthorizedError('Неправильный формат ссылки');
+  }
+  return value;
+};
+
 const {
   findUsers, findUserById, patchUser, patchUserAvatar, getCurrentUser,
 } = require('../controllers/users');
@@ -28,7 +40,7 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
+    avatar: Joi.string().custom(validateURL).required(),
   }),
 }), patchUserAvatar);
 
