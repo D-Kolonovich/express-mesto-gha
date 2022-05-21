@@ -1,13 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
 const { errors, celebrate, Joi } = require('celebrate');
+const cors = require('cors');
 const validator = require('validator');
 const errorHandler = require('./errors/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 
 const UnauthorizedError = require('./errors/UnauthorizedError');
 
@@ -27,7 +30,20 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
+app.use(requestLogger); // подключаем логгер запросов
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
 app.use(express.json());
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://dkmesto.students.nomoredomains.xyz'],
+  credentials: true,
+}));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -51,11 +67,13 @@ app.use(auth);
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
+app.use(errorLogger); // подключаем логгер ошибок
+
 app.use('/', (req, res, next) => {
   next(new NotFoundError('Путь не найден')); // res.status(404).send
 });
 
-app.use(errors());
+app.use(errors()); // обработчик ошибок celebrate
 
 app.use(errorHandler);
 
